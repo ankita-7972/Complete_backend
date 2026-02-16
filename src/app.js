@@ -1,58 +1,74 @@
-// server ko create krta hai app.js file mai
+const express = require('express');
+const notemodel = require("./models/note.model")
 
-const express = require("express");
 
+const app = express();
 
-const app = express()
-
-//express ke body ke andar jo req aata hai use express red nhi kr skta Ooo utna capable nhi hota 
-//to uske liye use middleware use krna pdta hai usase Ooo data ko red kr sake 
+// req.body mai data aane ke liye middleware(express) use krna pdta hai
 app.use(express.json())
 
-const notes =[]
+/*
+POST/notes- create note
+GET/notes--- get all notes
+DELETE/notes/:id ----- Delete notes
+PATCH/notes/:id-------update notes
 
-// array ke andar kuch data hoga notes ka "title", description
-// POST method use krke api create ki hai 
-// /notes api name hai
-app.post('/notes',(req,res)=>{
-    notes.push(req.body)
+*/
+
+app.post("/notes",async(req,res)=>{
+    const data = req.body
+
+    await notemodel.create({
+        title :data.title,
+        description :data.description
+    })
 
     res.status(201).json({
-        message:"note created successfully"
+        message : "note created"
     })
+
+})
+
+app.get("/notes",async(req,res)=>{
+    const notes = await notemodel.find() // find method hamesha array[] return krega
+
     
-})
+    // find - array of object deti hai[{},{}]  or empty array deti hai []
+    // findOne- ye hame hamesha object deti hai{} or null deti hai
+    
 
-app.get("/notes",(req,res)=>{
     res.status(200).json({
-        message:"note featch successfully",
-        notes:notes
+        message : "Notes featched Sucessfully",
+        notes : notes
     })
 
 })
 
-app.delete("/notes/:index",(req,res)=>{
-    const index = req.params.index
-    delete notes [ index ]
-
-    res.status(200).json({
-        message:"note delete sucessfully"
+app.delete("/notes/:id",async(req,res)=>{
+    const id = req.params.id
+    await notemodel.findOneAndDelete({
+        _id : id
     })
 
+    res.status(200).json({
+        message : "note deleted sucessfully"
+    })
 })
 
-app.patch("/notes/:index",(req,res)=>{
-    const index = req.params.index
+app.patch("/notes/:id",async(req,res)=>{
+    const id = req.params.id
     const description = req.body.description
+    const title = req.body.title
 
-    notes[ index ].description = description
+
+    notemodel.findByIdAndUpdate({_id:id},{description:description},{title:title})
+
 
     res.status(200).json({
-        message:"notes updated sucessfully"
+        message : "Note updated sucessfully"
     })
-
 })
 
 
 
-module.exports=app;
+module.exports = app;
