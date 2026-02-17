@@ -58,16 +58,57 @@ app.delete("/notes/:id",async(req,res)=>{
 app.patch("/notes/:id",async(req,res)=>{
     const id = req.params.id
     const description = req.body.description
-    const title = req.body.title
+    
 
 
-    notemodel.findByIdAndUpdate({_id:id},{description:description},{title:title})
+    await notemodel.findByIdAndUpdate({_id:id},{description:description})
 
 
     res.status(200).json({
         message : "Note updated sucessfully"
     })
 })
+
+
+// app.patch("/notes/:id", async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { title, description } = req.body;
+
+//     // validation
+//     if (!title && !description) {
+//       return res.status(400).json({
+//         message: "At least one field (title or description) is required"
+//       });
+//     }
+
+//     const updatedNote = await notemodel.findByIdAndUpdate(
+//       id,
+//       {
+//         ...(title && { title }),
+//         ...(description && { description })
+//       },
+//       { new: true } // returns updated note
+//     );
+
+//     if (!updatedNote) {
+//       return res.status(404).json({
+//         message: "Note not found"
+//       });
+//     }
+
+//     res.status(200).json({
+//       message: "Note updated successfully",
+//       note: updatedNote
+//     });
+
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Server error",
+//       error: error.message
+//     });
+//   }
+// });
 
 
 
